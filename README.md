@@ -15,10 +15,10 @@ Spark : 1.5.0
 
 * Edit log settings on WebServer  
 /etc/httpd/conf/httpd.conf  Added to log_config_module  
-`
+```
 LogFormat "domain:%V\thost:%h\tserver:%A\tident:%l\tuser:%u\ttime:%{%d/%b/%Y:%H:%M:%S %z}t\tmethod:%m\tpath:%U%q\tprotocol:%H\tstatus:%>s\tsize:%b\treferer:%{Referer}i\tagent:%{User-Agent}i\tresponse_time:%D\tcookie:%{cookie}i\tset_cookie:%{Set-Cookie}o" apache_ltsv
 CustomLog "logs/access_log_ltsv" apache_ltsv
-`  
+```  
 
 * Set Permissions  
 access_log_ltsv is created under /var/log/httpd and logs are written.Set permissions to read with Fluentd.  
@@ -29,8 +29,8 @@ sudo chmod o+rx access_log_ltsv
 
 * Setting fluentd  
 /etc/td-agent/td-agent.conf
-`
-# ログの収集方法を設定
+```
+// ログの収集方法を設定
 <source>
   @type tail
   # 入力ファイル名
@@ -45,7 +45,7 @@ sudo chmod o+rx access_log_ltsv
   # イベントタグ
   tag apache2.access
 </source>
-# FluentdからKafkaに流されるようにする
+// FluentdからKafkaに流されるようにする 
 <match apache2.access>
   # Kafka出力
   @type kafka
@@ -55,25 +55,25 @@ sudo chmod o+rx access_log_ltsv
   # topic名
   default_topic accesslog-topic
 </match>
-`  
+```  
 
 * Setting Kafka  
 Zookeeper activation  
-`
+```
 $ sudo bin/zkServer.sh start
-`  
+```  
 Kafka activation  
-`
-# トピックを作成
+```
+// トピックを作成
 $ sudo bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic accesslog-topic
-# トピックが作成されていることを確認
+// トピックが作成されていることを確認
 $ sudo bin/kafka-topics.sh --list --zookeeper localhost:2181
-# Kafka起動
+// Kafka起動
 $ sudo bin/kafka-server-start.sh config/server.properties
-`
+```  
 
 * Run  
-`
+```
 ${SPARK_HOME}/bin/spark-submit --master yarn-client --class com.test.spark.KafkaWorker target/scala-2.10/WebSearch-assembly-0.1.jar IPアドレス:2181 accesslog-topic
 
 ・・・
@@ -87,6 +87,6 @@ POST 	 1
 GET 	 1
 ##End Mon Jul 29 05:40:50 JST 2019 ###
 ・・・
-`  
+```  
 ## Author
 shimoyama
