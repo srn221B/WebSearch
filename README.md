@@ -22,10 +22,8 @@ CustomLog "logs/access_log_ltsv" apache_ltsv
 
 * Set Permissions  
 access_log_ltsv is created under /var/log/httpd and logs are written.Set permissions to read with Fluentd.  
-`
-cd /var/log/httpd
-sudo chmod o+rx access_log_ltsv
-`  
+`cd /var/log/httpd`  
+`sudo chmod o+rx access_log_ltsv`    
 
 * Setting fluentd  
 /etc/td-agent/td-agent.conf
@@ -45,6 +43,8 @@ sudo chmod o+rx access_log_ltsv
   # イベントタグ
   tag apache2.access
 </source>
+```
+```
 // FluentdからKafkaに流されるようにする 
 <match apache2.access>
   # Kafka出力
@@ -59,34 +59,25 @@ sudo chmod o+rx access_log_ltsv
 
 * Setting Kafka  
 Zookeeper activation  
-```
-$ sudo bin/zkServer.sh start
-```  
+`$ sudo bin/zkServer.sh start`  
 Kafka activation  
-```
-// トピックを作成
-$ sudo bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic accesslog-topic
-// トピックが作成されていることを確認
-$ sudo bin/kafka-topics.sh --list --zookeeper localhost:2181
-// Kafka起動
-$ sudo bin/kafka-server-start.sh config/server.properties
-```  
+`$ sudo bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic accesslog-topic`  
+`$ sudo bin/kafka-topics.sh --list --zookeeper localhost:2181`  
+`$ sudo bin/kafka-server-start.sh config/server.properties`  
 
 * Run  
-```
+`
 ${SPARK_HOME}/bin/spark-submit --master yarn-client --class com.test.spark.KafkaWorker target/scala-2.10/WebSearch-assembly-0.1.jar IPアドレス:2181 accesslog-topic
+`  
+・・・  
+##Start Mon Jul 29 05:40:50 JST 2019 ###  
+192.168.10.110 	 2  
+POST 	 1  
+404 	 1  
+200 	 1  
+GET 	 1  
+##End Mon Jul 29 05:40:50 JST 2019 ###  
+・・・  
 
-・・・
-##End Mon Jul 29 05:40:45 JST 2019 ###
-
-##Start Mon Jul 29 05:40:50 JST 2019 ###
-192.168.10.110 	 2
-POST 	 1
-404 	 1
-200 	 1
-GET 	 1
-##End Mon Jul 29 05:40:50 JST 2019 ###
-・・・
-```  
 ## Author
 shimoyama
